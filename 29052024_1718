@@ -11,7 +11,6 @@
 #include <time.h>
 #pragma warning(disable:4996)
 
-// #define CLIENT
 #define SERVER
 #define DEBUG
 
@@ -23,8 +22,7 @@ int __cdecl main(int argc, char **argv)
 	int states=1;
 	char str[512] = "Waiting for an player .~.~.~. \n";
 
-	// waiting for client to connect
-	printf("%s", str); server_listen();
+	printf("%s", str); server_listen();// waiting for client to connect
 
 	srand(time(NULL));
 	int player = 2;
@@ -64,7 +62,7 @@ int __cdecl main(int argc, char **argv)
 	
 	
 	//給玩家2
-	char plar2Card[256] = "##~~遊戲開始~~## \n\n 以下是你的牌組 <Mayer> \n";
+	char plar2Card[256] = "";
 	for (int j = 0; j < round; j++)
 	{
 		if (card[1][j] == 52 || card[1][j] == 53)//沒有花色的鬼牌
@@ -73,14 +71,14 @@ int __cdecl main(int argc, char **argv)
 		}
 		else {
 			strcat(plar2Card, color[card[1][j] % 4]);
+			strcat(plar2Card, "_");
 			strcat(plar2Card, point[card[1][j] / 4]);
-			strcat(plar2Card, ",");
+			strcat(plar2Card, " , ");
 		}
 	}
 
 
 	do {
-		// receive request from client
 		recv_str();
 		printf(" ##~~遊戲開始~~## \n\n 以下是你的牌組 <Jack> : \n");
 		//將號碼對應的撲克牌列出
@@ -101,32 +99,72 @@ int __cdecl main(int argc, char **argv)
 
 		
 
-		printf("Jack 你要打哪張牌? \n");
-		states = 2;
-		// prompt for input
-		printf(" <Jack> : "); fgets(str, sizeof(str), stdin);
+		printf("Jack 請按下 ENTER ，丟棄重複的牌。 \n");
+		printf(" <Jack> : "); fgets(str, sizeof(str), stdin);// prompt for input
 
 		// To end connection, put @ as the first character
 		if (str[0] == '@') return 0;
-
 		// remove the newline character obtained by fgets()
 		int i = 0;  while (str[i] != '\n') i++; str[i] = '\0';
+
+		send_str(plar2Card);
+		states = 2;
+
 	} while (states==1);
 
+	int jackCard[100];
+	int jackI = 0;
 
-
+	//發牌之後，顯示剩餘不重複
 	do {
 		
-		printf("now stage 2 ");
+		//printf("now stage 2 ");
+		/*for (int j = 0; j < round ; j++)
+		{
+			printf("%d  ", card[0][j]);
+		}*/
+
+		int throwJ=0;
+		while(throwJ < round)
+		{
+			//如果比到最後一個
+			if ((throwJ) == 25)
+			{
+				
+				//printf("~~~~~最後一位~~~~~ %d  jackI--%d \n", card[0][throwJ], jackI);
+				jackCard[jackI] = card[0][throwJ];
+				throwJ++;
+			}
+			//這裡bug
+			//printf("%d 回合 第一 %d == 第二%d \ ",j, card[0][j], card[0][j + 1]);
+			//printf("檢查:  %d \n", card[0][throwJ]);
+			else if ((card[0][throwJ + 1] /4 == card[0][throwJ] /4 ) && (card[0][throwJ +1] - card[0][throwJ] <=3))
+			{
+				throwJ+=2;
+			}
+			else {
+				jackCard[jackI] = card[0][throwJ];
+				//printf("%d != %d \n", card[0][throwJ], card[0][throwJ + 1]);
+				jackI++;
+				throwJ++;
+			}
+			//printf("接著檢查:  %d \n", card[0][throwJ]);
+			//printf("throwJ是%d \n", throwJ);
+		}
+
+		printf(" Jack 剩下 : \n" );
+		for (int j = 0; j <= jackI; j++)
+		{
+
+			//printf(" %d,-", jackCard[j]);
+			printf("%s_", color[jackCard[j] % 4]);
+			printf("%s  ", point[jackCard[j] / 4]);
+		}
+
+
 		recv_str();
 		states = 3;
 	} while (states==2);
-
-
-
-
-
-
 
 	// end connection
 	inet_shutdown();
