@@ -15,10 +15,10 @@
 //#define SERVER
 #define DEBUG
 
-int __cdecl main(int argc, char **argv)
+int __cdecl main(int argc, char** argv)
 {
 #ifdef CLIENT
-	char *ipaddr, str[512] = "Ready to start his game? \n";
+	char* ipaddr, str[512] = "Ready to start his game? \n";
 
 	// server's ip address for testing and debugging
 	char ipaddr_test[] = "140.118.197.95";
@@ -41,6 +41,7 @@ int __cdecl main(int argc, char **argv)
 
 	// interactive process
 	do {
+		printf("起頭  \n");
 		// prompt for input
 		printf(" <Mayer> : "); fgets(str, sizeof(str), stdin);
 
@@ -54,7 +55,10 @@ int __cdecl main(int argc, char **argv)
 		send_str(str);
 
 		// receive response from server
+		printf("##~~遊戲開始~~## \n\n 生成你的牌組中 <Mayer>... \n");
 		recv_str();
+		printf("<Mayer> 請按下ENTER 丟棄重複的牌組。  \n");
+
 	} while (1);
 
 	// end connection
